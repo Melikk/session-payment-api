@@ -20,3 +20,13 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+jwt:
+  access:
+    secret: Ultra mega hyper secure top secret ACCESS key for ultimate JWT protection
+    #24 hours
+    life-time: 10
+  refresh:
+    secret: Ultra mega hyper secure top secret REFRESH key for ultimate JWT protection
+    #1 week
+    life-time: 120
