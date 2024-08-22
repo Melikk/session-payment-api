@@ -3,6 +3,7 @@ package com.example.sessionpaymentapi.service;
 import com.example.sessionpaymentapi.config.SecurityProperties;
 import com.example.sessionpaymentapi.entity.Session;
 import com.example.sessionpaymentapi.entity.User;
+import com.example.sessionpaymentapi.exception.ResourceNotFoundException;
 import com.example.sessionpaymentapi.repository.SessionRepository;
 import com.example.sessionpaymentapi.service.interfaces.SessionService;
 import lombok.AccessLevel;
@@ -26,7 +27,7 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public Session getBySessionKey(String sessionKey) throws UsernameNotFoundException {
         return sessionRepository.findActiveByKey(UUID.fromString(sessionKey), LocalDateTime.now())
-                .orElseThrow();
+                .orElseThrow(ResourceNotFoundException::new);
     }
 
     @Override

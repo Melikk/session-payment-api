@@ -6,6 +6,9 @@ import com.example.sessionpaymentapi.entity.Session;
 import com.example.sessionpaymentapi.entity.Transaction;
 import com.example.sessionpaymentapi.entity.User;
 import com.example.sessionpaymentapi.enums.TransactionType;
+import com.example.sessionpaymentapi.exception.InsufficientFundsException;
+import com.example.sessionpaymentapi.exception.ResourceNotFoundException;
+import com.example.sessionpaymentapi.exception.TransactionFailureException;
 import com.example.sessionpaymentapi.repository.AccountRepository;
 import com.example.sessionpaymentapi.repository.TransactionRepository;
 import com.example.sessionpaymentapi.service.interfaces.PaymentService;
@@ -37,11 +40,10 @@ public class PaymentServiceImpl implements PaymentService {
         try {
         User user = session.getUser();
         Account account = accountRepository.findByUser_Id(user.getId())
-                .orElseThrow(() -> new RuntimeException("Account not found"));
-        //TODO исключения
+                .orElseThrow(ResourceNotFoundException::new);
 
         if (account.getBalance().compareTo(WITHDRAWAL_AMOUNT) < 0) {
-            throw new RuntimeException("Insufficient funds");
+            throw new InsufficientFundsException();
         }
 
         account.setBalance(account.getBalance().subtract(WITHDRAWAL_AMOUNT));
@@ -65,12 +67,8 @@ public class PaymentServiceImpl implements PaymentService {
                 .balance(account.getBalance())
                 .createdAt(transaction.getCreatedAt())
                 .build();
-        } catch (PessimisticLockException | OptimisticLockException e) {
-            throw new RuntimeException("Concurrency issue occurred, please try again later.", e);
-        } catch (CannotAcquireLockException e) {
-            throw new RuntimeException("Transaction failed due to deadlock, please try again later.", e);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("An unexpected error occurred during payment processing.", e);
+        } catch (PessimisticLockException | OptimisticLockException | CannotAcquireLockException e) {
+            throw new TransactionFailureException();
         }
     }
 

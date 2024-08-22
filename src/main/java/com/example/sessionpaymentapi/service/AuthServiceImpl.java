@@ -5,10 +5,14 @@ import com.example.sessionpaymentapi.dto.AuthRequest;
 import com.example.sessionpaymentapi.dto.AuthResponse;
 import com.example.sessionpaymentapi.entity.Session;
 import com.example.sessionpaymentapi.entity.User;
+import com.example.sessionpaymentapi.exception.BadCredentialsException;
+import com.example.sessionpaymentapi.exception.UnauthorizedException;
+import com.example.sessionpaymentapi.exception.UserLockedException;
 import com.example.sessionpaymentapi.repository.UserRepository;
 import com.example.sessionpaymentapi.service.interfaces.AuthService;
 import com.example.sessionpaymentapi.service.interfaces.JwtService;
 import com.example.sessionpaymentapi.service.interfaces.SessionService;
+import io.jsonwebtoken.JwtException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -34,15 +38,12 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse login(AuthRequest request) {
         User user = userRepository.findByUsernameAndDeactivatedAtIsNull(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("BAD_CREDENTIALS"));
-        //TODO сделать исключения
-
+                .orElseThrow(BadCredentialsException::new);
 
         if (user.getUnlockAt() != null) {
 
             if (user.getUnlockAt().isAfter(LocalDateTime.now())) {
-                //TODO сделать исключения
-                throw new RuntimeException("locked");
+                throw new UserLockedException();
             }
 
             user.setAttemptedLogins(0);
@@ -59,8 +60,7 @@ public class AuthServiceImpl implements AuthService {
 
             userRepository.save(user);
 
-            //TODO сделать исключения
-            throw new RuntimeException("BAD_CREDENTIALS");
+            throw new BadCredentialsException();
         }
 
         user.setAttemptedLogins(0);
@@ -98,9 +98,8 @@ public class AuthServiceImpl implements AuthService {
             log.info("User refresh successfully USER:{} SID:{}", session.getUser().getUsername(), session.getId());
             return response;
 
-        } catch (Exception e) {
-            //TODO сделать исключения
-            throw new RuntimeException("BAD_CREDENTIALS");
+        } catch (JwtException e) {
+            throw new UnauthorizedException();
         }
     }
 
