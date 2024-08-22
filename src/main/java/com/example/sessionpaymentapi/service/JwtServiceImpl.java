@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.util.Date;
-import java.util.UUID;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -31,38 +30,38 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String generateAccessToken(UUID sessionKey) {
+    public String generateAccessToken(String sessionKey) {
         return this.generateJwtToken(accessKey, accessTokenDuration, sessionKey);
     }
 
     @Override
-    public String generateRefreshToken(UUID sessionKey) {
+    public String generateRefreshToken(String sessionKey) {
         return this.generateJwtToken(refreshKey, refreshTokenDuration, sessionKey);
     }
 
     @Override
-    public UUID extractSessionKeyFromAccessToken(String token) {
+    public String extractSessionKeyFromAccessToken(String token) {
         return extractSessionKey(token, accessKey);
     }
 
     @Override
-    public UUID extractSessionKeyFromRefreshToken(String token) {
+    public String extractSessionKeyFromRefreshToken(String token) {
         return extractSessionKey(token, refreshKey);
     }
 
-    private UUID extractSessionKey(String token, SecretKey secretKey) {
+    private String extractSessionKey(String token, SecretKey secretKey) {
         Claims claims = Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
 
-        return UUID.fromString(claims.getSubject());
+        return claims.getSubject();
     }
 
-    private String generateJwtToken(SecretKey secretKey, Duration lifetime, UUID sessionKey) {
+    private String generateJwtToken(SecretKey secretKey, Duration lifetime, String sessionKey) {
         return Jwts.builder()
-                .subject(sessionKey.toString())
+                .subject(sessionKey)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + lifetime.toMillis()))
                 .signWith(secretKey)

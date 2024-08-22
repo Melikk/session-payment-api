@@ -3,11 +3,11 @@ package com.example.sessionpaymentapi.service.interfaces;
 import java.util.UUID;
 
 public interface JwtService {
-    String generateAccessToken(UUID sessionKey);
+    String generateAccessToken(String sessionKey);
 
-    String generateRefreshToken(UUID sessionKey);
+    String generateRefreshToken(String sessionKey);
 
-    UUID extractSessionKeyFromAccessToken(String token);
+    String extractSessionKeyFromAccessToken(String token);
 
-    UUID extractSessionKeyFromRefreshToken(String token);
+    String extractSessionKeyFromRefreshToken(String token);
 }
