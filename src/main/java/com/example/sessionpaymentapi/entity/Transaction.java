@@ -34,7 +34,7 @@ public class Transaction {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "transaction_type")
-    TransactionType transaction_type;
+    TransactionType transactionType;
 
     @Column(name = "created_at")
     LocalDateTime createdAt;
