@@ -21,7 +21,9 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
-jwt:
+security:
+  attempted-logins: 5
+  lock-time: 5
   access:
     secret: Ultra mega hyper secure top secret ACCESS key for ultimate JWT protection
     #24 hours

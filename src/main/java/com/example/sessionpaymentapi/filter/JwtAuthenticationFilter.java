@@ -2,7 +2,7 @@ package com.example.sessionpaymentapi.filter;
 
 import com.example.sessionpaymentapi.entity.Session;
 import com.example.sessionpaymentapi.service.interfaces.JwtService;
-import io.jsonwebtoken.JwtException;
+import com.example.sessionpaymentapi.service.interfaces.SessionService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,12 +10,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -25,12 +25,13 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     JwtService jwtService;
-    UserDetailsService userDetailsService;
+    SessionService sessionService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -42,12 +43,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             this.extractJwtToken(request).ifPresent(accessToken -> {
                 String sessionKey = jwtService.extractSessionKeyFromAccessToken(accessToken);
-                Session session = (Session) userDetailsService.loadUserByUsername(sessionKey);
+                Session session = sessionService.getBySessionKey(sessionKey);
                 this.setAuthentication(session, request);
             });
 
             //TODO сделать исключения
-        } catch (JwtException | IllegalArgumentException e) {
+        } catch (Exception e) {
+            log.warn("JWT processing failed: {} {}", e.getClass().getSimpleName(), e.getMessage());
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
             return;
         }

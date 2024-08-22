@@ -3,9 +3,6 @@ CREATE TABLE users
     id               SERIAL PRIMARY KEY,
     username         VARCHAR(255) NOT NULL,
     password         VARCHAR(255) NOT NULL,
-    first_name       VARCHAR(255) NOT NULL,
-    last_name        VARCHAR(255) NOT NULL,
-    middle_name      VARCHAR(255),
     attempted_logins INTEGER      NOT NULL DEFAULT 0,
     unlock_at        TIMESTAMP(6),
     created_at       TIMESTAMP(6),
@@ -17,10 +14,9 @@ CREATE TABLE users
 CREATE TABLE session
 (
     id             SERIAL PRIMARY KEY,
-    active         boolean      NOT NULL DEFAULT true,
     user_id        BIGINT       NOT NULL,
     expired_at     TIMESTAMP(6) NOT NULL,
-    uuid_key       UUID         NOT NULL UNIQUE,
+    uuid_key       UUID         UNIQUE,
     created_at     TIMESTAMP(6),
     updated_at     TIMESTAMP(6),
     deactivated_at TIMESTAMP(6),

@@ -29,15 +29,6 @@ public class User {
     @Column(name = "password", nullable = false)
     String password;
 
-    @Column(name = "first_name", nullable = false)
-    String firstName;
-
-    @Column(name = "last_name", nullable = false)
-    String lastName;
-
-    @Column(name = "middle_name")
-    String middleName;
-
     @Column(name = "attempted_logins", nullable = false)
     Integer attemptedLogins;
 

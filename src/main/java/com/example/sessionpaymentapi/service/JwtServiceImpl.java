@@ -1,6 +1,6 @@
 package com.example.sessionpaymentapi.service;
 
-import com.example.sessionpaymentapi.config.JwtProperties;
+import com.example.sessionpaymentapi.config.SecurityProperties;
 import com.example.sessionpaymentapi.service.interfaces.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -22,7 +22,7 @@ public class JwtServiceImpl implements JwtService {
     Duration accessTokenDuration;
     Duration refreshTokenDuration;
 
-    public JwtServiceImpl(JwtProperties properties) {
+    public JwtServiceImpl(SecurityProperties properties) {
         this.accessKey = Keys.hmacShaKeyFor(properties.getAccess().getSecret().getBytes());
         this.refreshKey = Keys.hmacShaKeyFor(properties.getRefresh().getSecret().getBytes());
         this.accessTokenDuration = properties.getAccess().getDuration();
